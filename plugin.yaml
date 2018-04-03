@@ -1,0 +1,8 @@
+name: "nomagic"
+version: "0.1.0"
+usage: "Use Helm without Tiller"
+description: |-
+  Use Helm without Tiller.
+ignoreFlags: false
+useTunnel: false
+command: "$HELM_PLUGIN_DIR/nomagic.sh"
