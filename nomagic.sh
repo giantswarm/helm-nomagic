@@ -81,11 +81,8 @@ if [[ $# < 1 ]]; then
 fi
 
 case "${1:-"help"}" in
-  "env")
-    env
-    ;;
-  "render"):
-    render $2
+  "fetch"):
+    fetch $2
     ;;
   "init"):
     init $2 $3
