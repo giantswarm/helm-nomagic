@@ -8,11 +8,11 @@ manifests_directory='./manifests'
 
 usage() {
 cat << EOF
-Render local with Helm.
-This provides tools for working with the Keybase.io secure tool suite. Not.
+This allows storing and rendering Helm Charts in a deterministic way. No Tiller required.
 Available Commands:
   fetch     Fetches a chart and stores it in $charts_directory.
   render    Renders a chart from $charts_directory with values from $values_directory. Result is stored in $manifests_directory.
+  apply     FIXME to be done
 EOF
 }
 
