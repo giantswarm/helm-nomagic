@@ -2,9 +2,14 @@
 
 set -eu
 
-charts_directory='./charts'
-values_directory='./values'
-manifests_directory='./manifests'
+charts_directory='charts'
+values_directory='values'
+manifests_directory='manifests'
+temp_directory='temp'
+
+chart_name_delimiter='/'
+version_delimiter='#'
+
 
 usage() {
 cat << EOF
@@ -20,10 +25,16 @@ EOF
 fetch() {
   local chart_url=$1
 
-  [[ $chart_url =~ (.*)\/(.*)-(.*) ]]
+  local regex="(.*)$chart_name_delimiter(.*)$version_delimiter(.*)"
+  # echo "regex: $regex"
+
+  [[ $chart_url =~ $regex ]]
   chart_repo="${BASH_REMATCH[1]}"
   chart_name="${BASH_REMATCH[2]}"
   chart_version="${BASH_REMATCH[3]}"
+  # echo "$chart_repo $chart_name $chart_version"
+
+  # FIXME error if regex fails
 
   if [ -z "$2" ]; then
     local release_name=$chart_name
@@ -54,24 +65,29 @@ fetch() {
 render() {
   local release_name=$1
   local chart_url=$(cat "$values_directory/$release_name.yaml" | grep -F "x-nomagic_chart_url: " | awk -F " " '{print $NF}')
+  local regex="(.*)$chart_name_delimiter(.*)$version_delimiter(.*)"
 
-  [[ $chart_url =~ (.*)\/(.*)-(.*) ]]
+  [[ $chart_url =~ $regex ]]
   chart_repo="${BASH_REMATCH[1]}"
   chart_name="${BASH_REMATCH[2]}"
   chart_version="${BASH_REMATCH[3]}"
 
   echo -e "Rendering chart: \"$chart_repo/$chart_name-$chart_version\"\nwith values from: $values_directory/$release_name.yaml"
-  mkdir -p "$manifests_directory/$release_name"
+  mkdir -p "$temp_directory/$manifests_directory/$release_name"
   helm template \
     --name "$release_name" \
+    --name-template "$release_name" \
     --values "$values_directory/$release_name.yaml" \
-    --output-dir "$manifests_directory" \
-      "$charts_directory/$release_name"
+    --output-dir "$temp_directory/$manifests_directory" \
+      "$charts_directory/$chart_name"
 
   # reorder directory structure
-  mv "$manifests_directory/$release_name/templates/." "$manifests_directory/$release_name"
-  rmdir "$manifests_directory/$release_name/templates"
-
+  echo "Moving rendered results to ./$manifests_directory/$release_name"
+  rm --recursive "./$manifests_directory/$release_name" || true
+  mv "./$temp_directory/$manifests_directory/$chart_name/templates" "./$manifests_directory/$release_name"
+  rmdir "./$temp_directory/$manifests_directory/$chart_name"
+  rmdir "./$temp_directory/$manifests_directory" || true
+  rmdir "./$temp_directory" || true
 }
 
 
@@ -82,10 +98,10 @@ fi
 
 case "${1:-"help"}" in
   "fetch"):
-    fetch $2
+    fetch $2 $3
     ;;
-  "init"):
-    init $2 $3
+  "render"):
+    render $2
     ;;
   "help")
     usage

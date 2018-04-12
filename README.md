@@ -9,18 +9,19 @@
 $ helm plugin install https://github.com/giantswarm/helm-nomagic
 ```
 
+
 ## Usage
 
-FIXME fetch instead of init?
 ```
-helm nomagic init "$chart_repo/name:version"
+helm nomagic fetch "$chart_repo/name#version" $release_name
 ```
-optional $release_name
+`$release_name` is optional
 
 ```
 helm nomagic render $release_name
 ```
 
+TBD:
 ```
 helm nomagic apply $release_name
 ```
