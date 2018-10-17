@@ -1,7 +1,8 @@
 # Helm Plugin "No Magic"
 
-- see blog post for background
+- see [blog post] for background
 
+[blog post]: https://blog.giantswarm.io/what-you-yaml-is-what-you-get/
 
 ## Installation
 
